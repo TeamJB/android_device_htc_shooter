@@ -1,5 +1,9 @@
 import init.shooter.usb.rc
 
+on early-init
+    #set SELINUX to passive
+    setenforce 0
+
 on init
     mkdir /mnt/media_rw 0770 media_rw media_rw
     mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
@@ -195,6 +199,8 @@ on boot
     chown system /sys/devices/platform/rs300000a7.65536/force_sync
     chown system /sys/devices/platform/rs300000a7.65536/sync_sts
 
+    write /sys/module/subsystem_restart/parameters/restart_level 3
+
     #Vibrator
     chown system system sys/devices/platform/msm_ssbi.0/pm8058-core/pm8xxx-vib/amp
     chmod 666 sys/devices/platform/msm_ssbi.0/pm8058-core/pm8xxx-vib/amp
@@ -292,6 +298,11 @@ on property:ro.hdmi.enable=true
 service htcbatt /system/bin/htcbatt
     class main
     user root
+
+## TEMP FIX FOR BATTERY TEMP ISSUE THANKS FLEMMARD
+service adc_fixup /system/bin/cat /sys/devices/platform/msm_adc/batt_id
+    class main
+    oneshot
 
 service mpdecision /system/bin/mpdecision --no_sleep --avg_comp
     class main
